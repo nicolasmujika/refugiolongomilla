@@ -1,0 +1,43 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Inicio{% endblock %}
+
+{% block panel_content %}
+
+
+<div class="stat-row-3">
+  <div class="stat-box">
+    <span class="stat-n">{{ pendientes }}</span>
+    <span class="stat-l">Reservas pendientes</span>
+  </div>
+  <div class="stat-box">
+    <span class="stat-n">{{ confirmadas }}</span>
+    <span class="stat-l">Reservas confirmadas</span>
+  </div>
+  <div class="stat-box">
+    <span class="stat-n">{{ proximas_count }}</span>
+    <span class="stat-l">Próximas llegadas</span>
+  </div>
+</div>
+
+<div class="quick-section">
+  <h2>Accesos rápidos</h2>
+  <p class="quick-sub">Funciones principales del panel</p>
+  <div class="quick-grid">
+    <a href="{% url 'cabanas:panel_reservas' %}" class="quick-card">
+      <span class="quick-icon">📅</span>
+      <strong>Ver reservas</strong>
+      <p>Revisa, filtra y actualiza el estado de cada solicitud.</p>
+    </a>
+    <a href="{% url 'cabanas:panel_casas' %}" class="quick-card">
+      <span class="quick-icon">🏡</span>
+      <strong>Editar casas</strong>
+      <p>Precio, descripción, reglas y amenidades de cada casa.</p>
+    </a>
+    <a href="{% url 'cabanas:panel_config' %}" class="quick-card">
+      <span class="quick-icon">⚙️</span>
+      <strong>Configuración</strong>
+      <p>WhatsApp, Instagram y email de contacto del sitio.</p>
+    </a>
+  </div>
+</div>
+{% endblock %}

@@ -1,0 +1,245 @@
+{% extends "base.html" %}
+{% load static %}
+{% load traducciones %}
+{% block content %}
+
+{% if desierto_florido and desierto_florido.en_temporada %}
+<div class="temporada-banner">
+  <div class="container">
+    🌸 {{ t.temporada_de }} {% t_campo desierto_florido.nombre desierto_florido.nombre_en %}.
+    <a href="{% url 'cabanas:guia' %}">{{ t.ver_guia_completa }}</a>
+  </div>
+</div>
+{% endif %}
+
+<section class="hero" id="top">
+  <div class="stars"></div>
+  <div class="hero-content">
+    <div class="container">
+      <p class="eyebrow hero-eyebrow">Vallenar · Provincia del Huasco · Región de Atacama</p>
+      <img src="{% static 'cabanas/img/logo.png' %}" alt="{{ config.brand_name }}" class="hero-logo">
+      {% t_campo config.hero_titulo config.hero_titulo_en as hero_titulo_final %}
+      {% t_campo config.hero_subtitulo config.hero_subtitulo_en as hero_subtitulo_final %}
+      <h1>{{ hero_titulo_final|safe }}</h1>
+      <p class="hero-sub">{{ hero_subtitulo_final }}</p>
+      <div class="hero-ctas">
+        <a href="#reserva" class="btn btn-clay">{{ t.reservar_estadia }}</a>
+        <a href="#casas" class="btn btn-outline-dark">{{ t.conocer_casas }}</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="intro">
+  <div class="container">
+    <p class="eyebrow">{{ t.la_idea }}</p>
+    <h2>{{ t.intro_titulo }}</h2>
+    <p>{{ t.intro_texto }}</p>
+  </div>
+</section>
+
+<div id="casas">
+{% for casa in casas %}
+<section class="casa" id="{{ casa.tipo }}">
+  <div class="container casa-grid {% if not forloop.first %}reverse{% endif %}">
+    <div class="casa-copy">
+      <span class="eyebrow">{% t_campo casa.eyebrow casa.eyebrow_en %}</span>
+      <h3 class="casa-title">{% t_campo casa.nombre casa.nombre_en %}</h3>
+      <p>{% t_campo casa.descripcion casa.descripcion_en %}</p>
+      <div class="casa-meta">
+        <div><span class="label">{{ t.huespedes }}</span><span class="val">{{ casa.capacidad_huespedes|default:"[definir]" }}</span></div>
+        <div><span class="label">Precio desde</span><span class="val">{{ casa.get_precio_display }} / noche</span></div>
+      </div>
+      <div class="casa-ctas">
+        <a class="btn btn-clay" href="#reserva">{{ t.reservar }} {% t_campo casa.nombre casa.nombre_en %}</a>
+      </div>
+    </div>
+    <div class="casa-gallery">
+      {% for foto in casa.fotos.all|slice:":3" %}
+        <div class="ph-photo" style="background-image:url('{{ foto.imagen.url }}');"><div class="ph-label">{{ foto.descripcion|default:"" }}</div></div>
+      {% empty %}
+        <div class="ph-photo empty"><div class="ph-label">Sube fotos desde /admin/</div></div>
+      {% endfor %}
+    </div>
+  </div>
+
+  {% if casa.amenidades.all or casa.checkin_hora or casa.checkout_hora or casa.reglas_texto %}
+  <div class="container">
+    <details class="casa-detalles">
+      <summary>{{ t.ver_detalles|default:"Ver equipamiento y normas de la casa" }}</summary>
+
+      <div class="detalles-inner">
+        {% if casa.amenidades.all %}
+          <div class="detalles-col">
+            <h5>{{ t.que_incluye|default:"Qué incluye" }}</h5>
+            <ul class="amenidades-lista">
+              {% for a in casa.amenidades.all %}
+                <li>{% if a.icono %}<span>{{ a.icono }}</span>{% endif %}{% t_campo a.texto a.texto_en %}</li>
+              {% endfor %}
+            </ul>
+          </div>
+        {% endif %}
+
+        {% if casa.checkin_hora or casa.checkout_hora or casa.reglas_texto %}
+          <div class="detalles-col">
+            <h5>{{ t.antes_reservar|default:"Antes de reservar" }}</h5>
+            <div class="reglas-row">
+              {% if casa.checkin_hora %}<span class="regla-chip">{{ t.check_in|default:"Check-in" }} {{ casa.checkin_hora }}</span>{% endif %}
+              {% if casa.checkout_hora %}<span class="regla-chip">{{ t.check_out|default:"Check-out" }} {{ casa.checkout_hora }}</span>{% endif %}
+              <span class="regla-chip">
+                {% if casa.acepta_mascotas %}🐾 {{ t.acepta_mascotas_si }}{% else %}{{ t.acepta_mascotas_no }}{% endif %}
+              </span>
+            </div>
+            {% t_campo casa.reglas_texto casa.reglas_texto_en as reglas_final %}
+            {% if reglas_final %}
+              <ul class="reglas-lista">
+                {% for linea in reglas_final.splitlines %}
+                  {% if linea %}<li>{{ linea }}</li>{% endif %}
+                {% endfor %}
+              </ul>
+            {% endif %}
+          </div>
+        {% endif %}
+      </div>
+    </details>
+  </div>
+  {% endif %}
+</section>
+{% endfor %}
+</div>
+
+{% if banner_imagenes %}
+<div class="promo-banner">
+  {% for img in banner_imagenes %}
+    <div class="promo-slide {% if forloop.first %}active{% endif %}" style="background-image:url('{{ img }}');"></div>
+  {% endfor %}
+  <div class="promo-overlay"></div>
+  <a href="{% url 'cabanas:guia' %}" class="promo-banner-link">
+    <div class="container promo-banner-inner">
+      <p class="eyebrow">{{ t.ahora_en_zona }}</p>
+      <h2>{{ t.descubre_zona }}</h2>
+      <p class="promo-sub">{{ t.desierto_promo_sub }}</p>
+      <span class="promo-cta">{{ t.ver_guia_completa }}</span>
+    </div>
+  </a>
+</div>
+{% endif %}
+
+<section class="ubicacion" id="ubicacion">
+  <div class="container ubicacion-grid">
+    <div>
+      <p class="eyebrow">{{ t.como_llegar }}</p>
+      <h2>{{ t.ubicacion_titulo }}</h2>
+      <p>{{ t.ubicacion_texto }}</p>
+    </div>
+    <div class="map-ph">
+      {% if config.maps_embed_url %}
+        <iframe src="{{ config.maps_embed_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%; height:100%; border:0;"></iframe>
+      {% else %}
+        <div class="pin"></div>
+        <div class="ph-label">mapa: agrega la URL en /admin/ → Configuración del sitio</div>
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<section class="experiencias">
+  <div class="container">
+    <div class="head">
+      <p class="eyebrow">{{ t.que_encontrar }}</p>
+      <h2>{{ t.que_encontrar_sub }}</h2>
+    </div>
+    <div class="exp-grid">
+      <div class="exp-card">
+        <span class="k">{{ t.cielo_k }}</span>
+        <h4>{{ t.cielo_titulo }}</h4>
+        <p>{{ t.cielo_texto }}</p>
+      </div>
+      <div class="exp-card">
+        <span class="k">{{ t.silencio_k }}</span>
+        <h4>{{ t.silencio_titulo }}</h4>
+        <p>{{ t.silencio_texto }}</p>
+      </div>
+      <div class="exp-card">
+        <span class="k">{{ t.acceso_k }}</span>
+        <h4>{{ t.acceso_titulo }}</h4>
+        <p>{{ t.acceso_texto }}</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+{% if resenas %}
+<section class="resenas-teaser">
+  <div class="container resenas-teaser-inner">
+    <div>
+      <p class="eyebrow">{{ t.lo_que_dicen }}</p>
+      <div class="teaser-estrellas">★★★★★</div>
+    </div>
+    <p class="teaser-frase">"{% t_campo resenas.0.texto resenas.0.texto_en %}"</p>
+    <a href="{% url 'cabanas:resenas' %}" class="btn btn-outline-light">{{ t.ver_todas_resenas }} →</a>
+  </div>
+</section>
+{% endif %}
+<section class="reserva" id="reserva">
+  <div class="container reserva-inner">
+    <div>
+      <p class="eyebrow">{{ t.reservas_contacto }}</p>
+      <h2 id="reserva-form-anchor">{{ t.cuentanos }}</h2>
+      <p class="lead">{{ t.reserva_lead }}</p>
+
+      {% if messages %}
+        <ul class="messages">
+          {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+        </ul>
+      {% endif %}
+
+      <div class="contact-list">
+        <a href="https://wa.me/{{ config.whatsapp_number }}" target="_blank" rel="noopener"><span>WhatsApp</span><span class="k">Directo</span></a>
+        <a href="https://instagram.com/{{ config.instagram_handle|cut:'@' }}" target="_blank" rel="noopener"><span>Instagram</span><span class="k">{{ config.instagram_handle }}</span></a>
+        <a href="mailto:{{ config.contact_email }}"><span>Email</span><span class="k">Escribir</span></a>
+      </div>
+
+      <div class="disponibilidad">
+        <p class="cal-title">{{ t.disponibilidad }}</p>
+        <div id="calendario-disponibilidad"></div>
+      </div>
+    </div>
+
+    <div class="book-card">
+      <h3>{{ t.solicitar_reserva }}</h3>
+      <form method="post" action="{% url 'cabanas:reservar' %}">
+        {% csrf_token %}
+        <div class="form-row">
+          <div class="field full"><label>{{ t.casa }}</label>{{ reserva_form.casa }}</div>
+          <div class="field"><label>{{ t.llegada }}</label>{{ reserva_form.fecha_llegada }}</div>
+          <div class="field"><label>{{ t.salida }}</label>{{ reserva_form.fecha_salida }}</div>
+          <div class="field"><label>{{ t.huespedes }}</label>{{ reserva_form.huespedes }}</div>
+          <div class="field full"><label>{{ t.nombre }}</label>{{ reserva_form.nombre }}{{ reserva_form.nombre.errors }}</div>
+          <div class="field"><label>Email</label>{{ reserva_form.email }}{{ reserva_form.email.errors }}</div>
+          <div class="field">
+            <label>{{ t.contacto }}</label>
+            <div class="phone-combo">
+              <img id="bandera-pais" src="https://flagcdn.com/24x18/cl.png" alt="" class="bandera-icono-inline">
+              {{ reserva_form.codigo_pais }}
+              {{ reserva_form.contacto }}
+            </div>
+            {{ reserva_form.contacto.errors }}
+          </div>
+          <div class="field full"><label>{{ t.mensaje }}</label>{{ reserva_form.mensaje }}</div>
+          <div class="field full" style="margin-top:6px;">
+            <label>{{ t.servicios_extra }}</label>
+            <div class="servicios-checks">
+              {% for checkbox in reserva_form.servicios %}
+                <label class="check-item">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+        <button type="submit" class="btn btn-clay book-submit">{{ t.enviar_solicitud }}</button>
+      </form>
+    </div>
+  </div>
+</section>
+
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Configuración{% endblock %}
+
+{% block panel_content %}
+<div class="panel-page-head">
+  <h1>Configuración</h1>
+</div>
+
+<form method="post" class="config-form">
+  {% csrf_token %}
+
+  <label>Nombre de marca</label>
+  <input type="text" name="brand_name" value="{{ config.brand_name }}">
+
+  <label>Subtítulo de marca</label>
+  <input type="text" name="brand_subtitle" value="{{ config.brand_subtitle }}">
+
+  <label>Título del hero (puedes usar &lt;br&gt; y &lt;em&gt;)</label>
+  <textarea name="hero_titulo" rows="2">{{ config.hero_titulo }}</textarea>
+
+  <label>Título del hero (inglés)</label>
+  <textarea name="hero_titulo_en" rows="2">{{ config.hero_titulo_en }}</textarea>
+
+  <label>Subtítulo del hero</label>
+  <input type="text" name="hero_subtitulo" value="{{ config.hero_subtitulo }}">
+
+  <label>Subtítulo del hero (inglés)</label>
+  <input type="text" name="hero_subtitulo_en" value="{{ config.hero_subtitulo_en }}">
+
+  <label>WhatsApp (sin +, ej: 56912345678)</label>
+  <input type="text" name="whatsapp_number" value="{{ config.whatsapp_number }}">
+
+  <label>Instagram (con @)</label>
+  <input type="text" name="instagram_handle" value="{{ config.instagram_handle }}">
+
+  <label>Email de contacto</label>
+  <input type="email" name="contact_email" value="{{ config.contact_email }}">
+
+  <button type="submit">Guardar cambios</button>
+</form>
+{% endblock %}

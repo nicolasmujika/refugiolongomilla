@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load static %}
+{% load traducciones %}
+{% block title %}Reseñas — {{ config.brand_name }}{% endblock %}
+
+{% block content %}
+<section class="galeria-hero">
+  <div class="container">
+    <p class="eyebrow">{{ t.lo_que_dicen }}</p>
+    <h1>{{ t.resenas_titulo_pagina }}</h1>
+    <p class="lead">{{ t.resenas_sub }}</p>
+  </div>
+</section>
+
+<section class="resenas-pagina">
+  <div class="container">
+    <div class="resenas-grid">
+      {% for r in resenas %}
+        <div class="resena-card">
+          <div class="resena-estrellas">
+            {% for i in "12345" %}
+              <span class="{% if forloop.counter <= r.estrellas %}activa{% endif %}">★</span>
+            {% endfor %}
+          </div>
+          <p class="resena-texto">"{% t_campo r.texto r.texto_en %}"</p>
+          <div class="resena-autor">
+            <strong>{{ r.nombre_huesped }}</strong>
+            {% if r.casa %}<span>{{ r.casa.nombre }}</span>{% endif %}
+          </div>
+        </div>
+      {% empty %}
+        <p>Aún no hay reseñas cargadas.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

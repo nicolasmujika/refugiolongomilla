@@ -1,0 +1,148 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Reservas{% endblock %}
+
+{% block panel_content %}
+<div class="panel-page-head">
+  <h1>Reservas</h1>
+</div>
+
+{% if messages %}
+  <ul class="panel-messages">
+    {% for message in messages %}<li>{{ message }}</li>{% endfor %}
+  </ul>
+{% endif %}
+
+<div class="dash-layout">
+  <div class="dash-col-izq">
+    <div class="dash-card">
+      <span class="dash-n">{{ resumen.total }}</span>
+      <span class="dash-l">Reservas totales</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-n">{{ resumen.pendientes }}</span>
+      <span class="dash-l">Pendientes de confirmar</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-n">{{ resumen.confirmadas }}</span>
+      <span class="dash-l">Confirmadas</span>
+    </div>
+    <div class="dash-card">
+      <span class="dash-n">{{ resumen.ocupacion_pct }}%</span>
+      <span class="dash-l">Ocupación este mes</span>
+    </div>
+    <div class="dash-card dash-card-ingresos">
+      <span class="dash-n">${{ resumen.ingresos_estimados|floatformat:0 }}</span>
+      <span class="dash-l">Ingresos estimados (confirmadas)</span>
+    </div>
+  </div>
+
+  <div class="dash-col-der">
+    <div class="dash-panel dash-grafico">
+      <h3>Reservas por mes</h3>
+      {% if resumen.grafico_mensual %}
+        <div class="mini-chart">
+          {% for m in resumen.grafico_mensual %}
+            <div class="mini-bar-col">
+              <div class="mini-bar" style="height:{{ m.pct }}%;"><span>{{ m.cantidad }}</span></div>
+              <span class="mini-bar-label">{{ m.mes }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% else %}
+        <p class="panel-empty-mini">Sin datos todavía</p>
+      {% endif %}
+    </div>
+
+    <div class="dash-panel dash-proximas">
+      <h3>Próximas llegadas</h3>
+      {% if resumen.proximas %}
+        <ul>
+          {% for r in resumen.proximas %}
+            <li>{{ r.fecha_llegada|date:"d M" }} — {{ r.nombre }} ({{ r.casa.nombre|default:"Casa s/d" }})</li>
+          {% endfor %}
+        </ul>
+      {% else %}
+        <p class="panel-empty-mini">Ninguna por ahora</p>
+      {% endif %}
+    </div>
+  </div>
+</div>
+
+<form method="get" class="panel-filtros">
+  <input type="text" name="q" placeholder="Buscar por nombre..." value="{{ busqueda }}">
+  <select name="estado" onchange="this.form.submit()">
+    <option value="" {% if not estado_filtro %}selected{% endif %}>Todos los estados</option>
+    <option value="pendiente" {% if estado_filtro == "pendiente" %}selected{% endif %}>Pendiente</option>
+    <option value="confirmada" {% if estado_filtro == "confirmada" %}selected{% endif %}>Confirmada</option>
+    <option value="cancelada" {% if estado_filtro == "cancelada" %}selected{% endif %}>Cancelada</option>
+  </select>
+  <input type="date" name="fecha_desde" value="{{ fecha_desde }}" title="Llegada desde">
+  <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}" title="Llegada hasta">
+  <button type="submit">Buscar</button>
+</form>
+
+{% if not reservas %}
+  <p class="panel-empty">No hay reservas que coincidan.</p>
+{% else %}
+  <div class="reservas-list">
+    {% for r in reservas %}
+      <div class="reserva-card estado-{{ r.estado }}">
+        <div class="reserva-info">
+          <div class="reserva-top">
+            <strong>{{ r.nombre }}</strong>
+            <span class="reserva-casa">{{ r.casa.nombre|default:"Casa sin definir" }}</span>
+          </div>
+          <div class="reserva-fechas">
+            {% if r.fecha_llegada %}{{ r.fecha_llegada|date:"d M Y" }} → {{ r.fecha_salida|date:"d M Y" }}{% else %}Fechas sin definir{% endif %}
+            · {{ r.huespedes }} huéspedes
+          </div>
+          <div class="reserva-contacto">📞 {{ r.contacto }}</div>
+          {% if r.servicios.all %}
+            <div class="reserva-servicios">
+              Extras: {% for s in r.servicios.all %}{{ s.nombre }}{% if not forloop.last %}, {% endif %}{% endfor %}
+            </div>
+          {% endif %}
+          {% if r.mensaje %}<div class="reserva-mensaje">"{{ r.mensaje }}"</div>{% endif %}
+        </div>
+
+        <div class="reserva-acciones">
+          {% if r.contacto_es_telefono %}
+            <a href="https://wa.me/{{ r.contacto_whatsapp }}" target="_blank" rel="noopener" class="accion-btn accion-wa" aria-label="WhatsApp">
+              <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l5.1-1.34A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18.06c-1.66 0-3.2-.48-4.5-1.32l-.32-.2-3.03.8.81-2.95-.21-.3A7.95 7.95 0 0 1 4.06 12 7.94 7.94 0 0 1 12 4.06 7.94 7.94 0 0 1 19.94 12 7.94 7.94 0 0 1 12 20.06Zm4.38-5.9c-.24-.12-1.43-.7-1.65-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1-.37-1.9-1.17-.7-.63-1.18-1.4-1.31-1.64-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02 0 1.19.87 2.34.99 2.5.12.16 1.71 2.6 4.14 3.65.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.43-.58 1.63-1.15.2-.56.2-1.04.14-1.15-.06-.1-.22-.16-.46-.28Z"/>
+              </svg>
+            </a>
+            <a href="tel:+{{ r.contacto_whatsapp }}" class="accion-btn accion-llamar" aria-label="Llamar">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/>
+              </svg>
+            </a>
+          {% endif %}
+          <form method="post" class="reserva-estado-form"
+                data-wa-confirmar="https://wa.me/{{ r.contacto_whatsapp }}?text={{ r.mensaje_confirmacion_whatsapp|urlencode }}">
+            {% csrf_token %}
+            <input type="hidden" name="reserva_id" value="{{ r.id }}">
+            <select name="estado" onchange="manejarCambioEstado(this)">
+              <option value="pendiente" {% if r.estado == "pendiente" %}selected{% endif %}>Pendiente</option>
+              <option value="confirmada" {% if r.estado == "confirmada" %}selected{% endif %}>Confirmada</option>
+              <option value="cancelada" {% if r.estado == "cancelada" %}selected{% endif %}>Cancelada</option>
+            </select>
+          </form>
+          <form method="post" action="{% url 'cabanas:panel_reserva_delete' r.id %}"
+                class="reserva-delete-form"
+                onsubmit="return confirmarEliminarReserva(this, '{{ r.nombre|escapejs }}')">
+            {% csrf_token %}
+            <input type="hidden" name="confirmar" value="si">
+            <button type="submit" class="accion-btn accion-eliminar" aria-label="Eliminar reserva">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" xmlns="http://www.w3.org/2000/svg">
+                <polyline points="3 6 5 6 21 6"></polyline>
+                <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+              </svg>
+            </button>
+          </form>
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% endif %}
+{% endblock %}

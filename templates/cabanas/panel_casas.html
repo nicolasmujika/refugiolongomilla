@@ -1,0 +1,106 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Casas{% endblock %}
+
+{% block panel_content %}
+<div class="panel-page-head">
+  <h1>Casas</h1>
+</div>
+<p class="panel-nota">Las fotos de cada casa se administran desde <code>/admin/</code> por ahora.</p>
+
+{% for casa in casas %}
+  <form method="post" class="casa-edit-card">
+    {% csrf_token %}
+    <input type="hidden" name="casa_id" value="{{ casa.id }}">
+
+    <div class="casa-edit-top">
+      <strong>{{ casa.nombre }}</strong>
+      <label class="switch">
+        <input type="checkbox" name="activa" {% if casa.activa %}checked{% endif %}>
+        Visible en la página
+      </label>
+    </div>
+
+    <div class="casa-form-grid">
+      <div class="campo">
+        <label>Nombre</label>
+        <input type="text" name="nombre" value="{{ casa.nombre }}">
+      </div>
+      <div class="campo">
+        <label>Nombre (inglés)</label>
+        <input type="text" name="nombre_en" value="{{ casa.nombre_en }}">
+      </div>
+
+      <div class="campo">
+        <label>Texto pequeño superior</label>
+        <input type="text" name="eyebrow" value="{{ casa.eyebrow }}">
+      </div>
+      <div class="campo">
+        <label>Texto pequeño superior (inglés)</label>
+        <input type="text" name="eyebrow_en" value="{{ casa.eyebrow_en }}">
+      </div>
+
+      <div class="campo campo-full">
+        <label>Descripción</label>
+        <textarea name="descripcion" rows="4">{{ casa.descripcion }}</textarea>
+      </div>
+      <div class="campo campo-full">
+        <label>Descripción (inglés)</label>
+        <textarea name="descripcion_en" rows="4">{{ casa.descripcion_en }}</textarea>
+      </div>
+
+      <div class="campo">
+        <label>Antigüedad</label>
+        <input type="text" name="antiguedad_texto" value="{{ casa.antiguedad_texto }}" placeholder="Ej: ~100 años">
+      </div>
+      <div class="campo">
+        <label>Capacidad de huéspedes</label>
+        <input type="number" name="capacidad_huespedes" value="{{ casa.capacidad_huespedes|default_if_none:'' }}">
+      </div>
+
+      <div class="campo">
+        <label>Distancia a Vallenar (km)</label>
+        <input type="number" name="distancia_a_vallenar_km" value="{{ casa.distancia_a_vallenar_km }}">
+      </div>
+      <div class="campo">
+        <label>Precio por noche (CLP)</label>
+        <input type="number" name="precio_desde" value="{{ casa.precio_desde|default_if_none:'' }}">
+      </div>
+
+      <div class="campo">
+        <label>Check-in desde</label>
+        <input type="text" name="checkin_hora" value="{{ casa.checkin_hora }}" placeholder="Ej: 15:00">
+      </div>
+      <div class="campo">
+        <label>Check-out hasta</label>
+        <input type="text" name="checkout_hora" value="{{ casa.checkout_hora }}" placeholder="Ej: 11:00">
+      </div>
+
+      <div class="campo">
+        <label class="switch">
+          <input type="checkbox" name="acepta_mascotas" {% if casa.acepta_mascotas %}checked{% endif %}>
+          Acepta mascotas
+        </label>
+      </div>
+
+      <div class="campo campo-full">
+        <label>Reglas adicionales (una por línea)</label>
+        <textarea name="reglas_texto" rows="4">{{ casa.reglas_texto }}</textarea>
+      </div>
+      <div class="campo campo-full">
+        <label>Reglas adicionales (inglés)</label>
+        <textarea name="reglas_texto_en" rows="4">{{ casa.reglas_texto_en }}</textarea>
+      </div>
+
+      <div class="campo campo-full">
+        <label>Amenidades — una por línea, formato: ícono | texto | texto en inglés</label>
+        <textarea name="amenidades_texto" rows="5" placeholder="🔥 | Cocina a leña | Wood-fired stove">{% for a in casa.amenidades.all %}{{ a.icono }} | {{ a.texto }} | {{ a.texto_en }}
+{% endfor %}</textarea>
+      </div>
+    </div>
+
+    <button type="submit">Guardar cambios</button>
+  </form>
+{% empty %}
+  <p class="panel-empty">No hay casas cargadas todavía.</p>
+{% endfor %}
+{% endblock %}

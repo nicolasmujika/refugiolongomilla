@@ -1,0 +1,69 @@
+{% extends "base.html" %}
+{% load static %}
+{% load traducciones %}
+{% block title %}Guía de la zona — {{ config.brand_name }}{% endblock %}
+
+{% block content %}
+<section class="galeria-hero">
+  <div class="container">
+    <p class="eyebrow">{{ t.guia }}</p>
+    <h1>{{ t.guia_titulo }}</h1>
+    <p class="lead">{{ t.guia_lead }}</p>
+  </div>
+</section>
+
+<section class="guia-section">
+  <div class="container">
+
+    {% if destacados %}
+      <div class="guia-grid guia-grid-destacados">
+        {% for a in destacados %}
+          <div class="guia-card destacado"
+            {% if a.imagen %}style="background-image:linear-gradient(0deg, rgba(20,17,12,.82), rgba(20,17,12,.35)), url('{{ a.imagen.url }}'); background-size:cover; background-position:center;"{% endif %}>
+            <span class="guia-categoria">{{ a.get_categoria_display }}</span>
+            <h3>{% t_campo a.nombre a.nombre_en %}</h3>
+            <p>{% t_campo a.descripcion a.descripcion_en %}</p>
+            <div class="guia-meta">
+              {% if a.distancia_km %}<span>{{ a.distancia_km }} km</span>{% endif %}
+              {% if a.temporada_inicio %}<span>{{ t.temporada_de }} {{ a.temporada_inicio|date:"d M" }} – {{ a.temporada_fin|date:"d M" }}</span>{% endif %}
+            </div>
+            {% if a.categoria == "desierto_florido" and config.guia_pdf %}
+              <a href="{{ config.guia_pdf.url }}" class="btn btn-outline-dark guia-pdf-btn" download>
+                {{ t.descargar_pdf }}
+              </a>
+            {% endif %}
+          </div>
+        {% endfor %}
+      </div>
+    {% endif %}
+
+    {% for grupo in grupos_atractivos %}
+      <div class="guia-categoria-bloque">
+        <h2 class="guia-categoria-titulo">{{ grupo.etiqueta }}</h2>
+        <div class="guia-grid">
+          {% for a in grupo.items %}
+            <div class="guia-card"
+              {% if a.imagen %}style="background-image:linear-gradient(0deg, rgba(20,17,12,.82), rgba(20,17,12,.35)), url('{{ a.imagen.url }}'); background-size:cover; background-position:center;"{% endif %}>
+              <h3>{% t_campo a.nombre a.nombre_en %}</h3>
+              <p>{% t_campo a.descripcion a.descripcion_en %}</p>
+              <div class="guia-meta">
+                {% if a.distancia_km %}<span>{{ a.distancia_km }} km</span>{% endif %}
+                {% if a.temporada_inicio %}<span>{{ t.temporada_de }} {{ a.temporada_inicio|date:"d M" }} – {{ a.temporada_fin|date:"d M" }}</span>{% endif %}
+              </div>
+              {% if a.sitio_web %}
+                <a href="{{ a.sitio_web }}" target="_blank" rel="noopener" class="guia-web-btn">{{ t.visitar_sitio }} ↗</a>
+              {% endif %}
+            </div>
+          {% endfor %}
+        </div>
+      </div>
+    {% empty %}
+      {% if not destacados %}
+        <p>Aún no hay atractivos cargados. Agrégalos desde /admin/ → Guía — Atractivos turísticos.</p>
+      {% endif %}
+    {% endfor %}
+
+
+  </div>
+</section>
+{% endblock %}

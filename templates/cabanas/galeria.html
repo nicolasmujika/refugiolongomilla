@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block title %}Galería — {{ config.brand_name }}{% endblock %}
+
+{% block content %}
+<section class="galeria-hero">
+  <div class="container">
+    <p class="eyebrow">{{ t.galeria }}</p>
+    <h1>{{ t.galeria_titulo }}</h1>
+    <p class="lead">{{ t.galeria_lead }}</p>
+  </div>
+</section>
+
+<section class="galeria-grid-section">
+  <div class="container">
+    <div class="galeria-grid">
+      {% for foto in fotos_zona %}
+        <div class="galeria-item" style="background-image:url('{{ foto.imagen.url }}');">
+          {% if foto.descripcion %}<span class="galeria-label">{{ foto.descripcion }}</span>{% endif %}
+        </div>
+      {% empty %}
+        <p>Aún no hay fotos cargadas. Súbelas desde /admin/ → Galería de la zona.</p>
+      {% endfor %}
+    </div>
+  </div>
+</section>
+{% endblock %}

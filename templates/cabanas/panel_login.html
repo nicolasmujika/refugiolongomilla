@@ -1,0 +1,24 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acceso — Panel</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'cabanas/css/panel.css' %}">
+</head>
+<body class="panel-login-body">
+  <form method="post" class="login-box">
+    {% csrf_token %}
+    <h1>Panel de administración</h1>
+    <p class="login-sub">Acceso privado — solo para propietarios</p>
+    {% if error %}<p class="login-error">Usuario o contraseña incorrectos.</p>{% endif %}
+    <label>Usuario</label>
+    <input type="text" name="username" required autofocus>
+    <label>Contraseña</label>
+    <input type="password" name="password" required>
+    <button type="submit">Entrar</button>
+  </form>
+</body>
+</html>

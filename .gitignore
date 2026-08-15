@@ -1,0 +1,12 @@
+.env
+.env.docker
+__pycache__/
+*.pyc
+venv/
+db.sqlite3
+staticfiles/
+media/casas/*
+media/servicios/*
+media/atractivos/*
+media/zona/*
+media/guias/*

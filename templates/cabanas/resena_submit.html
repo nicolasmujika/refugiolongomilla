@@ -1,0 +1,49 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Deja tu reseña — {{ config.brand_name }}</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;1,9..144,400&family=Inter:wght@400;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'cabanas/css/style.css' %}">
+<style>
+  body{ background:#20180f; min-height:100vh; display:flex; align-items:center; justify-content:center; padding:20px; }
+  .resena-box{ background:var(--sand-2); border-radius:6px; padding:40px 36px; max-width:440px; width:100%; }
+  .resena-box h1{ font-size:24px; margin:0 0 8px; }
+  .resena-box p.sub{ color:var(--ink-soft); font-size:13.5px; margin:0 0 24px; }
+  .resena-box label{ font-family:var(--f-mono); font-size:11px; text-transform:uppercase; color:var(--ink-soft); display:block; margin:16px 0 6px; }
+  .resena-box select, .resena-box textarea{ width:100%; padding:11px 12px; border:1px solid rgba(30,27,22,.14); border-radius:4px; font-size:14px; font-family:var(--f-body); }
+  .resena-box button{ margin-top:22px; width:100%; }
+</style>
+</head>
+<body>
+  <div class="resena-box">
+    {% if invalido %}
+      <h1>Link no válido</h1>
+      <p class="sub">Este enlace ya se usó o no corresponde a ninguna reserva.</p>
+    {% elif enviado %}
+      <h1>¡Gracias!</h1>
+      <p class="sub">Tu reseña quedó recibida. La vamos a revisar antes de publicarla.</p>
+    {% else %}
+      <h1>Cuéntanos cómo fue tu estadía</h1>
+      <p class="sub">{{ reserva.nombre }} — {{ reserva.casa.nombre }}</p>
+      {% if error %}<p style="color:#a34a4a; font-size:13px;">Escribe tu comentario antes de enviar.</p>{% endif %}
+      <form method="post">
+        {% csrf_token %}
+        <label>Estrellas</label>
+        <select name="estrellas">
+          <option value="5">★★★★★ Excelente</option>
+          <option value="4">★★★★ Muy bueno</option>
+          <option value="3">★★★ Bueno</option>
+          <option value="2">★★ Regular</option>
+          <option value="1">★ Malo</option>
+        </select>
+        <label>Tu comentario</label>
+        <textarea name="texto" rows="5" placeholder="Cuéntanos qué te gustó de tu estadía..."></textarea>
+        <button type="submit" class="btn btn-clay">Enviar reseña</button>
+      </form>
+    {% endif %}
+  </div>
+</body>
+</html>

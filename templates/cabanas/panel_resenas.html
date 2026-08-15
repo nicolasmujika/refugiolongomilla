@@ -1,0 +1,34 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Reseñas{% endblock %}
+
+{% block panel_content %}
+<div class="panel-page-head"><h1>Reseñas</h1></div>
+
+{% for r in resenas %}
+  <div class="reserva-card {% if r.publicada %}estado-confirmada{% else %}estado-pendiente{% endif %}">
+    <div class="reserva-info">
+      <div class="reserva-top">
+        <strong>{{ r.nombre_huesped }}</strong>
+        <span class="reserva-casa">{{ r.casa.nombre|default:"Sin casa" }}</span>
+        <span class="reserva-casa">{{ r.estrellas }}★</span>
+      </div>
+      <div class="reserva-mensaje">"{{ r.texto }}"</div>
+    </div>
+    <div class="reserva-acciones">
+      <form method="post">
+        {% csrf_token %}
+        <input type="hidden" name="resena_id" value="{{ r.id }}">
+        {% if r.publicada %}
+          <button type="submit" name="accion" value="ocultar" class="btn-mini">Ocultar</button>
+        {% else %}
+          <button type="submit" name="accion" value="publicar" class="btn-mini btn-mini-accent">Publicar</button>
+        {% endif %}
+        <button type="submit" name="accion" value="eliminar" class="btn-mini btn-mini-danger"
+                onclick="return confirm('¿Eliminar esta reseña?')">Eliminar</button>
+      </form>
+    </div>
+  </div>
+{% empty %}
+  <p class="panel-empty">No hay reseñas todavía.</p>
+{% endfor %}
+{% endblock %}

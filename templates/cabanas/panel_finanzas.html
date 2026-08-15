@@ -1,0 +1,113 @@
+{% extends "cabanas/panel_base.html" %}
+{% block title %}Finanzas{% endblock %}
+
+{% block panel_content %}
+<div class="panel-page-head">
+  <h1>Finanzas</h1>
+</div>
+<div class="dash-panel fin-rango-box">
+  <h3>Ver ganancias de un día o rango específico</h3>
+  <form method="get" class="fin-rango-form">
+    <div class="campo">
+      <label>Desde</label>
+      <input type="date" name="fecha_desde" value="{{ fecha_desde }}" required>
+    </div>
+    <div class="campo">
+      <label>Hasta (opcional, para un solo día déjalo igual o vacío)</label>
+      <input type="date" name="fecha_hasta" value="{{ fecha_hasta }}">
+    </div>
+    <button type="submit">Calcular</button>
+  </form>
+
+  {% if rango_resultado %}
+    <div class="fin-rango-resultado">
+      <p class="fin-rango-titulo">
+        {% if rango_resultado.desde == rango_resultado.hasta %}
+          Ganancias del {{ rango_resultado.desde|date:"d M Y" }}
+        {% else %}
+          Ganancias entre {{ rango_resultado.desde|date:"d M Y" }} y {{ rango_resultado.hasta|date:"d M Y" }}
+        {% endif %}
+      </p>
+      <div class="fin-rango-nums">
+        <div><span class="fin-l">Arriendo</span><span class="fin-n">${{ rango_resultado.arriendo|floatformat:0 }}</span></div>
+        <div><span class="fin-l">Servicios</span><span class="fin-n">${{ rango_resultado.servicios|floatformat:0 }}</span></div>
+        <div><span class="fin-l">Total</span><span class="fin-n fin-n-total">${{ rango_resultado.total|floatformat:0 }}</span></div>
+      </div>
+      <p class="fin-rango-nota">{{ rango_resultado.reservas }} reserva{{ rango_resultado.reservas|pluralize }} con noches dentro de este rango.</p>
+    </div>
+  {% endif %}
+</div>
+
+<div class="fin-totales">
+  <div class="fin-total-card fin-total-principal">
+    <span class="fin-l">Ingresos totales (confirmadas)</span>
+    <span class="fin-n">${{ total_general|floatformat:0 }}</span>
+    <span class="fin-sub">{{ cantidad_confirmadas }} reserva{{ cantidad_confirmadas|pluralize }} confirmada{{ cantidad_confirmadas|pluralize }}</span>
+  </div>
+  <div class="fin-total-card">
+    <span class="fin-l">Por arriendo</span>
+    <span class="fin-n">${{ total_arriendo|floatformat:0 }}</span>
+  </div>
+  <div class="fin-total-card">
+    <span class="fin-l">Por servicios extra</span>
+    <span class="fin-n">${{ total_servicios|floatformat:0 }}</span>
+  </div>
+  <div class="fin-total-card fin-potencial">
+    <span class="fin-l">Potencial en pendientes</span>
+    <span class="fin-n">${{ potencial_pendientes|floatformat:0 }}</span>
+    <span class="fin-sub">Si se confirman</span>
+  </div>
+</div>
+
+<div class="dash-panel" style="margin-bottom:24px;">
+  <h3>Ingresos por mes (fecha de llegada)</h3>
+  {% if grafico_ingresos %}
+    <div class="mini-chart">
+      {% for m in grafico_ingresos %}
+        <div class="mini-bar-col">
+          <div class="mini-bar" style="height:{{ m.pct }}%;"><span>${{ m.monto|floatformat:0 }}</span></div>
+          <span class="mini-bar-label">{{ m.mes }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  {% else %}
+    <p class="panel-empty-mini">Sin datos todavía</p>
+  {% endif %}
+</div>
+
+<div class="fin-columnas">
+  <div class="dash-panel">
+    <h3>Ingresos por casa</h3>
+    {% if por_casa %}
+      <table class="fin-tabla">
+        {% for nombre, data in por_casa %}
+          <tr>
+            <td>{{ nombre }}</td>
+            <td class="fin-tabla-num">{{ data.reservas }} reserva{{ data.reservas|pluralize }}</td>
+            <td class="fin-tabla-monto">${{ data.ingreso|floatformat:0 }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="panel-empty-mini">Sin datos todavía</p>
+    {% endif %}
+  </div>
+
+  <div class="dash-panel">
+    <h3>Ingresos por servicio extra</h3>
+    {% if por_servicio %}
+      <table class="fin-tabla">
+        {% for nombre, data in por_servicio %}
+          <tr>
+            <td>{{ nombre }}</td>
+            <td class="fin-tabla-num">{{ data.usos }} uso{{ data.usos|pluralize }}</td>
+            <td class="fin-tabla-monto">${{ data.ingreso|floatformat:0 }}</td>
+          </tr>
+        {% endfor %}
+      </table>
+    {% else %}
+      <p class="panel-empty-mini">Aún no hay servicios extra en reservas confirmadas</p>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

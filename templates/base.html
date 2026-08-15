@@ -1,0 +1,90 @@
+{% load static %}
+{% load traducciones %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}{{ config.brand_name }} — {{ config.brand_subtitle }}{% endblock %}</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="icon" type="image/png" href="{% static 'cabanas/img/logo.png' %}">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,400;0,9..144,500;0,9..144,600;1,9..144,400;1,9..144,500&family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'cabanas/css/style.css' %}">
+</head>
+<body data-idioma="{{ idioma_actual }}">
+
+<header class="nav" id="siteNav">
+  <div class="container nav-inner">
+    <a href="{% url 'cabanas:home' %}" class="brand">
+      <img src="{% static 'cabanas/img/logo.png' %}" alt="{{ config.brand_name }}" class="brand-logo">
+      <span>{{ config.brand_name }}</span><small>{{ config.brand_subtitle }}</small>
+    </a>
+    <nav class="links">
+      {% for casa in casas %}<a href="{% url 'cabanas:home' %}#{{ casa.tipo }}">{% t_campo casa.nombre casa.nombre_en %}</a>{% endfor %}
+      <a href="{% url 'cabanas:galeria' %}">{{ t.galeria }}</a>
+      <a href="{% url 'cabanas:resenas' %}">{{ t.resenas_nav }}</a>
+      <a href="{% url 'cabanas:guia' %}">{{ t.guia }}</a>
+      <a href="{% url 'cabanas:home' %}#ubicacion">{{ t.ubicacion }}</a>
+      <a href="{% url 'cabanas:home' %}#reserva">{{ t.reservas }}</a>
+    </nav>
+    <div class="nav-cta">
+      <div class="lang-switch">
+        <a href="{% url 'cabanas:cambiar_idioma' 'es' %}" class="{% if idioma_actual == 'es' %}active{% endif %}">ES</a>
+        <span>/</span>
+        <a href="{% url 'cabanas:cambiar_idioma' 'en' %}" class="{% if idioma_actual == 'en' %}active{% endif %}">EN</a>
+      </div>
+      <a href="https://instagram.com/{{ config.instagram_handle|cut:'@' }}" target="_blank" rel="noopener" class="nav-ig" aria-label="Instagram">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/>
+        </svg>
+      </a>
+    </div>
+  </div>
+</header>
+
+{% block content %}{% endblock %}
+
+<footer>
+  <div class="container">
+    <div class="footer-top">
+      <a href="{% url 'cabanas:home' %}" class="brand" style="color:var(--star);">
+        <img src="{% static 'cabanas/img/logo.png' %}" alt="{{ config.brand_name }}" class="brand-logo">
+        <span>{{ config.brand_name }}</span>
+      </a>
+      <div class="footer-links">
+        {% for casa in casas %}<a href="{% url 'cabanas:home' %}#{{ casa.tipo }}">{% t_campo casa.nombre casa.nombre_en %}</a>{% endfor %}
+        <a href="{% url 'cabanas:galeria' %}">{{ t.galeria }}</a>
+        <a href="{% url 'cabanas:guia' %}">{{ t.guia }}</a>
+        <a href="{% url 'cabanas:home' %}#ubicacion">{{ t.ubicacion }}</a>
+        <a href="{% url 'cabanas:home' %}#reserva">{{ t.reservas }}</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© {% now "Y" %} — a 15 km de Vallenar, provincia del Huasco.</span>
+      <a href="https://instagram.com/{{ config.instagram_handle|cut:'@' }}" target="_blank" rel="noopener" class="footer-ig">
+        <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <rect x="2" y="2" width="20" height="20" rx="5" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="12" cy="12" r="4.2" stroke="currentColor" stroke-width="1.8"/>
+          <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/>
+        </svg>
+        {{ config.instagram_handle }}
+      </a>
+    </div>
+  </div>
+</footer>
+
+<div class="floating-contact">
+  <a href="https://wa.me/{{ config.whatsapp_number }}" target="_blank" rel="noopener" class="fab fab-whatsapp" aria-label="WhatsApp">
+    <svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+      <path d="M12 2C6.48 2 2 6.48 2 12c0 1.85.5 3.58 1.37 5.07L2 22l5.1-1.34A9.94 9.94 0 0 0 12 22c5.52 0 10-4.48 10-10S17.52 2 12 2Zm0 18.06c-1.66 0-3.2-.48-4.5-1.32l-.32-.2-3.03.8.81-2.95-.21-.3A7.95 7.95 0 0 1 4.06 12 7.94 7.94 0 0 1 12 4.06 7.94 7.94 0 0 1 19.94 12 7.94 7.94 0 0 1 12 20.06Zm4.38-5.9c-.24-.12-1.43-.7-1.65-.79-.22-.08-.38-.12-.55.12-.16.24-.63.79-.77.95-.14.16-.28.18-.52.06-.24-.12-1-.37-1.9-1.17-.7-.63-1.18-1.4-1.31-1.64-.14-.24-.02-.37.1-.49.11-.11.24-.28.36-.42.12-.14.16-.24.24-.4.08-.16.04-.3-.02-.42-.06-.12-.55-1.32-.75-1.81-.2-.48-.4-.41-.55-.42h-.47c-.16 0-.42.06-.64.3-.22.24-.85.83-.85 2.02 0 1.19.87 2.34.99 2.5.12.16 1.71 2.6 4.14 3.65.58.25 1.03.4 1.38.51.58.18 1.11.16 1.53.1.47-.07 1.43-.58 1.63-1.15.2-.56.2-1.04.14-1.15-.06-.1-.22-.16-.46-.28Z"/>
+    </svg>
+  </a>
+</div>
+
+<script src="{% static 'cabanas/js/main.js' %}"></script>
+</body>
+</html>

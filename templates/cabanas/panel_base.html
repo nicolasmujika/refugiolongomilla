@@ -1,0 +1,36 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>{% block title %}Panel{% endblock %} — Refugios de Longomilla</title>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'cabanas/css/panel.css' %}">
+</head>
+<body class="panel-body">
+
+<div class="panel-shell">
+  <aside class="panel-sidebar">
+    <div class="sidebar-brand">
+      <span class="sidebar-brand-title">Panel</span>
+      <span class="sidebar-brand-sub">Refugios de Longomilla</span>
+    </div>
+    <nav class="sidebar-nav">
+      <a href="{% url 'cabanas:panel_home' %}" class="{% if active == 'home' %}active{% endif %}"> Inicio</a>
+      <a href="{% url 'cabanas:panel_reservas' %}" class="{% if active == 'reservas' %}active{% endif %}"> Reservas</a>
+      <a href="{% url 'cabanas:panel_casas' %}" class="{% if active == 'casas' %}active{% endif %}"> Casas</a>
+      <a href="{% url 'cabanas:panel_config' %}" class="{% if active == 'config' %}active{% endif %}"> Configuración</a>
+      <a href="{% url 'cabanas:panel_finanzas' %}" class="{% if active == 'finanzas' %}active{% endif %}"> Finanzas</a>
+      <a href="{% url 'cabanas:panel_resenas' %}" class="{% if active == 'resenas' %}active{% endif %}"> Reseñas</a>
+    </nav>
+    <a href="{% url 'cabanas:panel_logout' %}" class="sidebar-logout">Cerrar sesión</a>
+  </aside>
+
+  <div class="panel-content">
+    {% block panel_content %}{% endblock %}
+  </div>
+</div>
+<script src="{% static 'cabanas/js/panel.js' %}"></script>
+</body>
+</html>
