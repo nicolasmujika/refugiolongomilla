@@ -21,16 +21,21 @@
       <img src="{% static 'cabanas/img/logo.png' %}" alt="{{ config.brand_name }}" class="brand-logo">
       <span>{{ config.brand_name }}</span><small>{{ config.brand_subtitle }}</small>
     </a>
-    <nav class="links">
+    <nav class="links" id="navLinks">
       {% for casa in casas %}<a href="{% url 'cabanas:home' %}#{{ casa.tipo }}">{% t_campo casa.nombre casa.nombre_en %}</a>{% endfor %}
       <a href="{% url 'cabanas:galeria' %}">{{ t.galeria }}</a>
       <a href="{% url 'cabanas:resenas' %}">{{ t.resenas_nav }}</a>
       <a href="{% url 'cabanas:guia' %}">{{ t.guia }}</a>
       <a href="{% url 'cabanas:home' %}#ubicacion">{{ t.ubicacion }}</a>
       <a href="{% url 'cabanas:home' %}#reserva">{{ t.reservas }}</a>
+      <div class="lang-switch nav-links-lang">
+        <a href="{% url 'cabanas:cambiar_idioma' 'es' %}" class="{% if idioma_actual == 'es' %}active{% endif %}">ES</a>
+        <span>/</span>
+        <a href="{% url 'cabanas:cambiar_idioma' 'en' %}" class="{% if idioma_actual == 'en' %}active{% endif %}">EN</a>
+      </div>
     </nav>
     <div class="nav-cta">
-      <div class="lang-switch">
+      <div class="lang-switch nav-cta-lang">
         <a href="{% url 'cabanas:cambiar_idioma' 'es' %}" class="{% if idioma_actual == 'es' %}active{% endif %}">ES</a>
         <span>/</span>
         <a href="{% url 'cabanas:cambiar_idioma' 'en' %}" class="{% if idioma_actual == 'en' %}active{% endif %}">EN</a>
@@ -42,8 +47,12 @@
           <circle cx="17.3" cy="6.7" r="1.1" fill="currentColor"/>
         </svg>
       </a>
+      <button class="nav-burger" id="navBurger" aria-label="Abrir menú" aria-expanded="false" aria-controls="navLinks">
+        <span></span><span></span><span></span>
+      </button>
     </div>
   </div>
+  <div class="nav-backdrop" id="navBackdrop"></div>
 </header>
 
 {% block content %}{% endblock %}

@@ -3,6 +3,32 @@ document.addEventListener('DOMContentLoaded', () => {
   window.addEventListener('scroll', () => {
     nav.classList.toggle('solid', window.scrollY > 40);
   });
+
+  const burger = document.getElementById('navBurger');
+  const links = document.getElementById('navLinks');
+  const backdrop = document.getElementById('navBackdrop');
+
+  function cerrarMenu() {
+    burger.classList.remove('open');
+    links.classList.remove('open');
+    backdrop.classList.remove('open');
+    burger.setAttribute('aria-expanded', 'false');
+    document.body.style.overflow = '';
+  }
+
+  function toggleMenu() {
+    const abierto = links.classList.toggle('open');
+    burger.classList.toggle('open', abierto);
+    backdrop.classList.toggle('open', abierto);
+    burger.setAttribute('aria-expanded', abierto ? 'true' : 'false');
+    document.body.style.overflow = abierto ? 'hidden' : '';
+  }
+
+  if (burger && links && backdrop) {
+    burger.addEventListener('click', toggleMenu);
+    backdrop.addEventListener('click', cerrarMenu);
+    links.querySelectorAll('a').forEach(a => a.addEventListener('click', cerrarMenu));
+  }
 });
 
 const CAL_TEXTOS = {
