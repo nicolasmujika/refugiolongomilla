@@ -499,7 +499,7 @@ footer{ background:var(--night); color:var(--star); padding:56px 0 30px; }
 .footer-ig:hover{ opacity:1; }
 
 .hero-logo{
-  height:400px;
+  height:500px;
   width:auto;
   display:block;
   margin:0 auto 5px;
@@ -508,10 +508,11 @@ footer{ background:var(--night); color:var(--star); padding:56px 0 30px; }
   .hero-logo{ height:240px; max-width:80%; }
 }
 .brand-logo{
-  height:40px;
-  width:40px;
-  object-fit:contain;
-  flex-shrink:0;
+  height:76px;
+  width:auto;
+  border:none;
+  outline:none;
+  display:block;
 }
 @media (max-width: 880px){
   .brand-logo{ height:32px; width:32px; }
@@ -663,3 +664,11 @@ footer{ background:var(--night); color:var(--star); padding:56px 0 30px; }
 .teaser-estrellas{ color:var(--clay-light); font-size:18px; letter-spacing:3px; margin-top:10px; }
 .teaser-frase{ font-family:var(--f-display); font-style:italic; font-size:22px; line-height:1.5; margin:20px 0 26px; color:var(--ink); }
 .resenas-pagina{ padding:70px 0 100px; background:var(--sand-2); }
+
+.nav-logo{
+  height:70px;
+  width:auto;
+  border:none;
+  outline:none;
+  display:block;
+}
