@@ -1,6 +1,12 @@
 {% extends "base.html" %}
 {% load static %}
 {% load traducciones %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+{% endblock %}
+
 {% block content %}
 
 {% if desierto_florido and desierto_florido.en_temporada %}
@@ -126,22 +132,40 @@
 {% endif %}
 
 <section class="ubicacion" id="ubicacion">
-  <div class="container ubicacion-grid">
+  <div class="container ubicacion-grid {% if mostrar_mapa_interactivo %}ubicacion-grid--mapa{% endif %}">
     <div>
       <p class="eyebrow">{{ t.como_llegar }}</p>
       <h2>{{ t.ubicacion_titulo }}</h2>
       <p>{{ t.ubicacion_texto }}</p>
     </div>
-    <div class="map-ph">
-      {% if config.maps_embed_url %}
+    {% if mostrar_mapa_interactivo %}
+      <div id="mapa-ubicacion" class="map-ph mapa-interactivo"></div>
+      <div class="mapa-selector-wrap">
+        <label for="mapa-selector" class="mapa-selector-label">{{ t.ver_en_mapa|default:"Ver en el mapa" }}</label>
+        <select id="mapa-selector" class="mapa-selector">
+          <option value="casa" selected> {{ config.brand_name }}</option>
+          {% for p in puntos_interes %}
+            <option value="{{ p.id }}">{% t_campo p.nombre p.nombre_en %}</option>
+          {% endfor %}
+        </select>
+      </div>
+    {% elif config.maps_embed_url %}
+      <div class="map-ph">
         <iframe src="{{ config.maps_embed_url }}" loading="lazy" referrerpolicy="no-referrer-when-downgrade" style="width:100%; height:100%; border:0;"></iframe>
-      {% else %}
+      </div>
+    {% else %}
+      <div class="map-ph">
         <div class="pin"></div>
-        <div class="ph-label">mapa: agrega la URL en /admin/ → Configuración del sitio</div>
-      {% endif %}
-    </div>
+        <div class="ph-label">mapa: agrega la ubicación en /admin/ → Configuración del sitio</div>
+      </div>
+    {% endif %}
   </div>
 </section>
+
+{% if mostrar_mapa_interactivo %}
+{{ casa_mapa_json|json_script:"casa-mapa-data" }}
+{{ puntos_mapa_json|json_script:"puntos-mapa-data" }}
+{% endif %}
 
 <section class="experiencias">
   <div class="container">
@@ -241,5 +265,64 @@
     </div>
   </div>
 </section>
+
+<script>
+document.addEventListener("DOMContentLoaded", function () {
+  const contenedor = document.getElementById("mapa-ubicacion");
+  if (!contenedor || typeof L === "undefined") return;
+
+  const casaEl = document.getElementById("casa-mapa-data");
+  const puntosEl = document.getElementById("puntos-mapa-data");
+  const casa = casaEl ? JSON.parse(casaEl.textContent) : null;
+  const puntos = puntosEl ? JSON.parse(puntosEl.textContent) : [];
+
+  if (!casa) return;
+
+  const map = L.map("mapa-ubicacion").setView([casa.lat, casa.lng], 12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    attribution: '&copy; OpenStreetMap contributors',
+    maxZoom: 19,
+  }).addTo(map);
+  setTimeout(() => map.invalidateSize(), 200);
+
+  function popupConDireccion(nombre, lat, lng) {
+    const url = `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+    return `<div class="mapa-popup"><strong>${nombre}</strong><br><a href="${url}" target="_blank" rel="noopener">Cómo llegar (Google Maps) →</a></div>`;
+  }
+
+  const iconoCasa = L.divIcon({ className: 'mapa-pin-casa', html: '📍', iconSize: [28, 28] });
+  const marcadorCasa = L.marker([casa.lat, casa.lng], { icon: iconoCasa })
+    .addTo(map)
+    .bindPopup(popupConDireccion(casa.nombre, casa.lat, casa.lng));
+
+  const marcadoresPuntos = {};
+  puntos.forEach(p => {
+    if (typeof p.lat !== "number" || typeof p.lng !== "number") {
+      console.warn("Punto de mapa ignorado (sin coordenadas válidas):", p);
+      return;
+    }
+    const m = L.marker([p.lat, p.lng])
+      .addTo(map)
+      .bindPopup(popupConDireccion(p.nombre, p.lat, p.lng));
+    marcadoresPuntos[p.id] = m;
+  });
+
+  const selector = document.getElementById("mapa-selector");
+  if (selector) {
+    selector.addEventListener("change", () => {
+      const valor = selector.value;
+      if (valor === "casa") {
+        map.flyTo([casa.lat, casa.lng], 12);
+        marcadorCasa.openPopup();
+        return;
+      }
+      const punto = puntos.find(p => String(p.id) === valor);
+      if (!punto) return;
+      map.flyTo([punto.lat, punto.lng], 14);
+      marcadoresPuntos[valor].openPopup();
+    });
+  }
+});
+</script>
 
 {% endblock %}

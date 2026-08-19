@@ -143,6 +143,8 @@ class SiteConfig(models.Model):
     instagram_handle = models.CharField("Instagram", max_length=40, help_text="Con @. Ej: @entresiglos.huasco")
     contact_email = models.EmailField("Email de contacto")
     maps_embed_url = models.URLField("URL de Google Maps (embed)", blank=True)
+    latitud = models.DecimalField("Latitud de la casa", max_digits=9, decimal_places=6, null=True, blank=True)
+    longitud = models.DecimalField("Longitud de la casa", max_digits=9, decimal_places=6, null=True, blank=True)
     guia_pdf = models.FileField(
         "Guía turística (PDF)", upload_to="guias/", blank=True, null=True,
         help_text="Sube un PDF descargable con recomendaciones de la zona.",
@@ -226,13 +228,16 @@ class Atractivo(models.Model):
         ("desierto_florido", "Desierto Florido"),
         ("vinas", "Viñas y bodegas"),
         ("cabalgatas", "Tours y actividades"),
+        ("transporte", "Transporte"),
         ("mirador", "Mirador"),
         ("pueblo", "Pueblo / cultura"),
         ("aire_libre", "Aire libre"),
         ("costa", "Caleta / Costa"),
         ("otro", "Otro"),
+        
     ]
-
+    latitud = models.DecimalField("Latitud", max_digits=9, decimal_places=6, null=True, blank=True)
+    longitud = models.DecimalField("Longitud", max_digits=9, decimal_places=6, null=True, blank=True)
     nombre = models.CharField("Nombre", max_length=80)
     categoria = models.CharField("Categoría", max_length=20, choices=CATEGORIA_CHOICES, default="otro")
     descripcion = models.TextField("Descripción")
@@ -286,6 +291,25 @@ class AmenidadCasa(models.Model):
 
     def __str__(self):
         return f"{self.casa.nombre} — {self.texto}"
+
+class PuntoMapa(models.Model):
+    """Puntos de interés que aparecen ÚNICAMENTE en el mapa de la sección Ubicación
+    (home.html) — no se muestran en La Zona/Guía."""
+
+    nombre = models.CharField("Nombre", max_length=80)
+    nombre_en = models.CharField("Nombre (inglés)", max_length=80, blank=True)
+    latitud = models.DecimalField("Latitud", max_digits=9, decimal_places=6)
+    longitud = models.DecimalField("Longitud", max_digits=9, decimal_places=6)
+    orden = models.PositiveIntegerField("Orden", default=0)
+
+    class Meta:
+        verbose_name = "Punto de interés (mapa)"
+        verbose_name_plural = "Mapa — Puntos de interés"
+        ordering = ["orden", "id"]
+
+    def __str__(self):
+        return self.nombre
+
 
 class Resena(models.Model):
     ESTRELLAS_CHOICES = [(i, str(i)) for i in range(1, 6)]

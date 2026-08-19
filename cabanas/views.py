@@ -12,14 +12,16 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.core.mail import send_mail
 from .forms import ReservaForm
-from .models import AmenidadCasa, Atractivo, Casa, FotoZona, Reserva, Resena, Servicio, SiteConfig
+from .models import AmenidadCasa, Atractivo, Casa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig
+import json
 
 class HomeView(TemplateView):
     template_name = "cabanas/home.html"
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context["config"] = SiteConfig.get_solo()
+        config = SiteConfig.get_solo()
+        context["config"] = config
         context["casas"] = Casa.objects.filter(activa=True).prefetch_related("fotos")
         context["servicios"] = Servicio.objects.filter(activo=True)
         context["desierto_florido"] = Atractivo.objects.filter(
@@ -27,10 +29,37 @@ class HomeView(TemplateView):
         ).first()
         context["resenas"] = Resena.objects.filter(publicada=True).select_related("casa")[:3]
         banner_atractivos = Atractivo.objects.filter(mostrar_en_banner=True).exclude(imagen='').order_by('orden')
-        
+
         context["banner_imagenes"] = [a.imagen.url for a in banner_atractivos]
 
-        context.setdefault("reserva_form", ReservaForm(idioma=self.request.session.get("idioma", "es")))
+        idioma_actual = self.request.session.get("idioma", "es")
+
+        puntos_interes = PuntoMapa.objects.all()
+        context["puntos_interes"] = puntos_interes
+
+        puntos_mapa = []
+        for p in puntos_interes:
+            nombre = p.nombre_en if (idioma_actual == "en" and p.nombre_en) else p.nombre
+            puntos_mapa.append({
+                "id": p.id,
+                "nombre": nombre,
+                "lat": float(p.latitud),
+                "lng": float(p.longitud),
+            })
+        context["puntos_mapa_json"] = puntos_mapa
+
+        if config.latitud and config.longitud:
+            context["casa_mapa_json"] = {
+                "nombre": config.brand_name,
+                "lat": float(config.latitud),
+                "lng": float(config.longitud),
+            }
+            context["mostrar_mapa_interactivo"] = True
+        else:
+            context["casa_mapa_json"] = None
+            context["mostrar_mapa_interactivo"] = False
+
+        context.setdefault("reserva_form", ReservaForm(idioma=idioma_actual))
         return context
 
 
@@ -52,7 +81,7 @@ class GuiaZonaView(TemplateView):
         context = super().get_context_data(**kwargs)
         context["config"] = SiteConfig.get_solo()
         context["casas"] = Casa.objects.filter(activa=True)
-
+        
         atractivos = Atractivo.objects.all()
         destacados = [a for a in atractivos if a.destacado]
 
@@ -61,6 +90,18 @@ class GuiaZonaView(TemplateView):
             items = [a for a in atractivos if a.categoria == valor and not a.destacado]
             if items:
                 grupos.append({"valor": valor, "etiqueta": etiqueta, "items": items})
+                
+
+        puntos_mapa = []
+        for a in atractivos:
+            if a.latitud and a.longitud:
+                puntos_mapa.append({
+                    "id": a.id,
+                    "nombre": a.nombre_en if (a.nombre_en) else a.nombre,
+                    "lat": float(a.latitud),
+                    "lng": float(a.longitud),
+                })
+        context["puntos_mapa_json"] = json.dumps(puntos_mapa)
 
         context["destacados"] = destacados
         context["grupos_atractivos"] = grupos

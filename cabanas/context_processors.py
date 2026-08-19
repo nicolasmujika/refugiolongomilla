@@ -37,7 +37,7 @@ TRADUCCIONES = {
         "contacto": "Teléfono",
         "mensaje": "Mensaje",
         # ubicacion
-        "como_llegar": "Cómo llegar",
+        "como_llegar": "Lugares de interés",
         # galeria
         "galeria_titulo": "La zona, en imágenes",
         "galeria_lead": "Un vistazo al valle, los cerros y el entorno alrededor de las casas.",
@@ -45,8 +45,8 @@ TRADUCCIONES = {
         "guia_titulo": "Qué hacer en la zona",
         "guia_lead": "Atractivos cerca de las casas, en el valle del Huasco y sus alrededores.",
         "descargar_pdf": "Descargar guía en PDF",
-        "ubicacion_titulo": "A 15 km de Vallenar, en el valle del Huasco.",
-        "ubicacion_texto": "Un lugar tranquilo y de fácil acceso: lo suficientemente cerca de la ciudad para llegar sin complicaciones, y lo suficientemente lejos para dejar atrás el ruido. La región de Atacama es reconocida por sus cielos despejados, ideales para desconectarse bajo las estrellas.",
+        "ubicacion_titulo": "Lugares cercanos a nosotros.",
+        "ubicacion_texto": "Conoce los sitios de interés que estan en nuestro valle.",
         "cielo_k": "CIELO", "cielo_titulo": "Noches sin luz de ciudad",
         "cielo_texto": "El cielo del valle del Huasco, lejos del ruido de Vallenar, se presta para observar estrellas sin instrumentos.",
         "silencio_k": "SILENCIO", "silencio_titulo": "Un lugar realmente tranquilo",
@@ -68,7 +68,10 @@ TRADUCCIONES = {
         "resenas_sub": "Experiencias reales de quienes ya se alojaron con nosotros.",
         "ver_todas_resenas": "Ver todas las reseñas",
         "resenas_nav": "Reseñas",
-        
+        "guia": "La Zona",
+        "guia_titulo": "Puntos de interés cerca de las casas",
+        "guia_lead": "Desierto florido, viñas, transporte y más — todo ubicado en el mapa.",
+                
     },  
     "en": {
         "reservar": "Book",
@@ -130,7 +133,10 @@ TRADUCCIONES = {
         "resenas_sub": "Real experiences from people who've stayed with us.",
         "ver_todas_resenas": "See all reviews",
         "resenas_nav": "Reviews",
-        
+        "guia": "The Area",
+        "guia_titulo": "Points of interest near the houses",
+        "guia_lead": "Flowering desert, wineries, transport and more — all located on the map.",
+                
     },
 }
 

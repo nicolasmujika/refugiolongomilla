@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AmenidadCasa, Atractivo, Casa, FotoCasa, FotoZona, Reserva, Resena, Servicio, SiteConfig
+from .models import AmenidadCasa, Atractivo, Casa, FotoCasa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig, Atractivo
 
 class FotoCasaInline(admin.TabularInline):
     model = FotoCasa
@@ -42,7 +42,7 @@ class SiteConfigAdmin(admin.ModelAdmin):
         ("Portada (hero)", {"fields": ("hero_titulo", "hero_titulo_en", "hero_subtitulo", "hero_subtitulo_en")}),
         ("Marca", {"fields": ("brand_name", "brand_subtitle")}),
         ("Contacto", {"fields": ("whatsapp_number", "instagram_handle", "contact_email")}),
-        ("Ubicación", {"fields": ("maps_embed_url",)}),
+        ("Ubicación", {"fields": ("maps_embed_url", "latitud", "longitud")}),
         ("Guía descargable", {"fields": ("guia_pdf",)}),
     )
 
@@ -80,8 +80,8 @@ class FotoZonaAdmin(admin.ModelAdmin):
 
 @admin.register(Atractivo)
 class AtractivoAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "categoria", "destacado", "mostrar_en_banner", "temporada_inicio", "temporada_fin", "orden", "preview")
-    list_editable = ("destacado", "mostrar_en_banner", "orden")
+    list_display = ("nombre", "categoria", "destacado", "latitud", "longitud", "orden", "preview")
+    list_editable = ("destacado", "orden")
     list_filter = ("categoria",)
     readonly_fields = ("preview",)
 
@@ -98,3 +98,9 @@ class ResenaAdmin(admin.ModelAdmin):
     list_display = ("nombre_huesped", "casa", "estrellas", "fecha", "publicada", "orden")
     list_editable = ("publicada", "orden")
     list_filter = ("estrellas", "publicada", "casa")
+
+
+@admin.register(PuntoMapa)
+class PuntoMapaAdmin(admin.ModelAdmin):
+    list_display = ("nombre", "latitud", "longitud", "orden")
+    list_editable = ("orden",)
