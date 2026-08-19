@@ -20,7 +20,7 @@
   <div class="container nav-inner">
     <a href="{% url 'cabanas:home' %}" class="brand">
       <img src="{% static 'cabanas/img/logo.png' %}" alt="{{ config.brand_name }}" class="brand-logo">
-      <span>{{ config.brand_name }}</span><small>{{ config.brand_subtitle }}</small>
+      
     </a>
     <nav class="links" id="navLinks">
       {% for casa in casas %}<a href="{% url 'cabanas:home' %}#{{ casa.tipo }}">{% t_campo casa.nombre casa.nombre_en %}</a>{% endfor %}
