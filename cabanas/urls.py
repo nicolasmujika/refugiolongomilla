@@ -5,6 +5,8 @@ from .views import (
     PanelLoginView, PanelReservasView, PanelCasasView, PanelConfigView, panel_logout,
     PanelHomeView,PanelFinanzasView,PanelReservaDeleteView,ResenasView,ResenaSubmitView, PanelResenasView
 )
+from .sitemap_view import sitemap_xml
+from .robots_view import robots_txt
 app_name = "cabanas"
 
 urlpatterns = [
@@ -25,4 +27,6 @@ urlpatterns = [
     path("resenas/", ResenasView.as_view(), name="resenas"),
     path("resena/<uuid:token>/", ResenaSubmitView.as_view(), name="resena_submit"),
     path("gestion-huasco-2026/resenas/", PanelResenasView.as_view(), name="panel_resenas"),
+    path("sitemap.xml", sitemap_xml, name="sitemap_xml"),
+    path("robots.txt", robots_txt, name="robots_txt"),
 ]
