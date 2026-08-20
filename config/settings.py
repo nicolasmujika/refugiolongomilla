@@ -8,13 +8,40 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 
 
 
-SECRET_KEY = config('SECRET_KEY', default='clave-temporal-solo-para-build-no-usar-en-produccion')# SECURITY WARNING: don't run with debug turned on in production!
+SECRET_KEY = config('SECRET_KEY', default='clave-temporal-solo-para-build-no-usar-en-produccion')
+# SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='', cast=Csv())
 CSRF_TRUSTED_ORIGINS = config('CSRF_TRUSTED_ORIGINS', default='', cast=Csv())
+
+# --- Seguridad para producción (detrás de Cloudflare + Railway) ---
+
+# Le dice a Django que confíe en el header que manda el proxy para saber si la conexión es HTTPS real
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
+# Fuerza que todo el tráfico use HTTPS (si alguien entra por http://, lo redirige a https://)
+SECURE_SSL_REDIRECT = not DEBUG
+
+# Cookies de sesión y CSRF solo se envían por HTTPS
+SESSION_COOKIE_SECURE = not DEBUG
+CSRF_COOKIE_SECURE = not DEBUG
+
+# Evita que tu sitio sea embebido en un <iframe> de otro sitio (protección contra clickjacking)
+X_FRAME_OPTIONS = 'DENY'
+
+# HSTS: le dice al navegador "recuerda usar siempre HTTPS con este dominio, no lo intentes con HTTP nunca más"
+# Empieza bajo (1 día) para probar sin riesgo, luego lo subimos a 1 año (31536000)
+SECURE_HSTS_SECONDS = 86400 if not DEBUG else 0
+SECURE_HSTS_INCLUDE_SUBDOMAINS = not DEBUG
+SECURE_HSTS_PRELOAD = False  # no actives esto todavía, es un paso posterior y más agresivo
+
+# Protecciones adicionales estándar
+SECURE_CONTENT_TYPE_NOSNIFF = True
+SESSION_COOKIE_HTTPONLY = True
+CSRF_COOKIE_HTTPONLY = False  # Django necesita que este esté en False por diseño, no lo cambies
+
+# Application definition
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -30,16 +57,13 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
-    'django.middleware.security.SecurityMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
-    'django.contrib.sessions.middleware.SessionMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
-    
 ]
 
 ROOT_URLCONF = 'config.urls'
