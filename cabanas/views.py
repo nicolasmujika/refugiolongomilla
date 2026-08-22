@@ -109,6 +109,9 @@ class GuiaZonaView(TemplateView):
         return context
 
 
+from .emails import enviar_email  # agrega este import arriba del archivo, junto a los demás
+
+
 class ReservaCreateView(FormView):
     form_class = ReservaForm
     template_name = "cabanas/home.html"
@@ -123,12 +126,10 @@ class ReservaCreateView(FormView):
         config = SiteConfig.get_solo()
         texto = quote(reserva.whatsapp_mensaje())
 
-        send_mail(
-            subject=f"Nueva solicitud de reserva — {reserva.nombre}",
-            message=reserva.whatsapp_mensaje(),
-            from_email=None,
-            recipient_list=[config.contact_email],
-            fail_silently=True,
+        enviar_email(
+            destinatario=config.contact_email,
+            asunto=f"Nueva solicitud de reserva — {reserva.nombre}",
+            mensaje_texto=reserva.whatsapp_mensaje(),
         )
 
         if reserva.email:
@@ -142,12 +143,10 @@ class ReservaCreateView(FormView):
                 f"Te vamos a escribir pronto por WhatsApp para confirmar disponibilidad.\n\n"
                 f"Gracias por elegirnos.\n{config.brand_name}"
             )
-            send_mail(
-                subject=f"Recibimos tu solicitud — {config.brand_name}",
-                message=mensaje_huesped,
-                from_email=None,
-                recipient_list=[reserva.email],
-                fail_silently=True,
+            enviar_email(
+                destinatario=reserva.email,
+                asunto=f"Recibimos tu solicitud — {config.brand_name}",
+                mensaje_texto=mensaje_huesped,
             )
 
         messages.success(self.request, "¡Solicitud recibida! Te enviamos un correo y te redirigimos a WhatsApp para confirmar.")
