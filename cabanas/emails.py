@@ -12,7 +12,7 @@ def enviar_email(destinatario, asunto, mensaje_texto):
     try:
         resend.api_key = settings.RESEND_API_KEY
         resend.Emails.send({
-            "from": "onboarding@resend.dev",
+            "from": "Refugios de Longomilla <reservas@refugiosdelongomilla.cl>",
             "to": [destinatario],
             "subject": asunto,
             "text": mensaje_texto,
