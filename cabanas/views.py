@@ -60,6 +60,17 @@ class HomeView(TemplateView):
             context["mostrar_mapa_interactivo"] = False
 
         context.setdefault("reserva_form", ReservaForm(idioma=idioma_actual))
+
+        # OJO: no usar json.dumps() aquí — el filtro {{ ...|json_script:"id" }} del template
+        # ya serializa el valor a JSON. Si le pasamos un string ya convertido, Django lo
+        # vuelve a codificar y el navegador recibe un JSON-de-un-JSON (un string, no un objeto),
+        # por eso el cálculo del total nunca encontraba los precios.
+        context["casas_precios_json"] = {
+            str(c.id): c.precio_desde or 0 for c in context["casas"]
+        }
+        context["servicios_precios_json"] = {
+            str(s.id): s.precio or 0 for s in context["servicios"]
+        }
         return context
 
 

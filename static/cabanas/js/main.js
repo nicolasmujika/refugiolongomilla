@@ -177,3 +177,63 @@ function activarClicsCalendario() {
     }
   });
 }
+
+// ---------- Total estimado de la reserva (casa x noches + servicios extra) ----------
+function iniciarCalculoTotalReserva() {
+  const datosCasas = document.getElementById("casas-precios-data");
+  const datosServicios = document.getElementById("servicios-precios-data");
+  const totalBox = document.getElementById("total-estimado");
+  const totalMonto = document.getElementById("total-monto");
+  const selectCasa = document.getElementById("id_casa");
+  const inputLlegada = document.getElementById("id_fecha_llegada");
+  const inputSalida = document.getElementById("id_fecha_salida");
+  const checksServicios = document.querySelectorAll('input[name="servicios"]');
+
+  if (!datosCasas || !datosServicios || !totalBox || !selectCasa || !inputLlegada || !inputSalida) return;
+
+  const casasPrecios = JSON.parse(datosCasas.textContent);
+  const serviciosPrecios = JSON.parse(datosServicios.textContent);
+
+  function formatoCLP(numero) {
+    return "$" + numero.toLocaleString("es-CL");
+  }
+
+  function calcularTotal() {
+    const casaId = selectCasa.value;
+    const llegada = inputLlegada.value;
+    const salida = inputSalida.value;
+
+    let noches = 0;
+    if (llegada && salida) {
+      const d1 = new Date(llegada);
+      const d2 = new Date(salida);
+      const diff = (d2 - d1) / (1000 * 60 * 60 * 24);
+      if (diff > 0) noches = diff;
+    }
+
+    const precioNoche = casasPrecios[casaId] || 0;
+    let total = noches * precioNoche;
+
+    checksServicios.forEach(chk => {
+      if (chk.checked) {
+        total += serviciosPrecios[chk.value] || 0;
+      }
+    });
+
+    if (total > 0) {
+      totalBox.style.display = "flex";
+      totalMonto.textContent = formatoCLP(total);
+    } else {
+      totalBox.style.display = "none";
+    }
+  }
+
+  selectCasa.addEventListener("change", calcularTotal);
+  inputLlegada.addEventListener("change", calcularTotal);
+  inputSalida.addEventListener("change", calcularTotal);
+  checksServicios.forEach(chk => chk.addEventListener("change", calcularTotal));
+
+  calcularTotal();
+}
+
+document.addEventListener("DOMContentLoaded", iniciarCalculoTotalReserva);

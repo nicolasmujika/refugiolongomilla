@@ -192,7 +192,24 @@
     </div>
   </div>
 </section>
-
+<section class="servicios">
+  <div class="container">
+    <div class="head">
+      <p class="eyebrow">{{ t.servicios_extra }}</p>
+      <h2>{{ t.servicios_titulo }}</h2>
+      <p class="sub">{{ t.servicios_sub }}</p>
+    </div>
+    <div class="servicios-grid">
+      {% for servicio in servicios %}
+        <div class="servicio-card" {% if servicio.imagen %}style="background-image:linear-gradient(0deg, rgba(32,24,15,.88), rgba(32,24,15,.55)), url('{{ servicio.imagen.url }}'); background-size:cover; background-position:center;"{% endif %}>
+          <h4>{% t_campo servicio.nombre servicio.nombre_en %}</h4>
+          {% if servicio.descripcion %}<p>{% t_campo servicio.descripcion servicio.descripcion_en %}</p>{% endif %}
+          <span class="servicio-precio">{{ servicio.get_precio_display }}</span>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</section>
 {% if resenas %}
 <section class="resenas-teaser">
   <div class="container resenas-teaser-inner">
@@ -260,6 +277,10 @@
             </div>
           </div>
         </div>
+        <div class="total-estimado" id="total-estimado" style="display:none;">
+          <span class="total-label">Total estimado</span>
+          <span class="total-monto" id="total-monto">$0</span>
+        </div>
         <button type="submit" class="btn btn-clay book-submit">{{ t.enviar_solicitud }}</button>
       </form>
     </div>
@@ -324,5 +345,8 @@ document.addEventListener("DOMContentLoaded", function () {
   }
 });
 </script>
+
+{{ casas_precios_json|json_script:"casas-precios-data" }}
+{{ servicios_precios_json|json_script:"servicios-precios-data" }}
 
 {% endblock %}
