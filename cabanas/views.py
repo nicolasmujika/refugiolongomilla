@@ -142,6 +142,23 @@ class ReservaCreateView(FormView):
             asunto=f"Nueva solicitud de reserva — {reserva.nombre}",
             mensaje_texto=reserva.whatsapp_mensaje(),
         )
+                
+        noches_totales = 1
+        if reserva.fecha_llegada and reserva.fecha_salida:
+            noches_totales = max((reserva.fecha_salida - reserva.fecha_llegada).days, 1)
+
+        servicios_dias = {}
+        for s in reserva.servicios.filter(cobro_por_noche=True):
+            valor = self.request.POST.get(f"dias_{s.id}", noches_totales)
+            try:
+                dias = int(valor)
+            except (TypeError, ValueError):
+                dias = noches_totales
+            dias = max(1, min(dias, noches_totales))
+            servicios_dias[str(s.id)] = dias
+
+        reserva.servicios_dias = servicios_dias
+        reserva.save()
 
         if reserva.email:
             mensaje_huesped = (

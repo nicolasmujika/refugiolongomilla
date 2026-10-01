@@ -54,8 +54,8 @@ class SiteConfigAdmin(admin.ModelAdmin):
 
 @admin.register(Servicio)
 class ServicioAdmin(admin.ModelAdmin):
-    list_display = ("nombre", "precio", "activo", "orden", "preview")
-    list_editable = ("precio", "activo", "orden")
+    list_display = ("nombre", "precio", "cobro_por_noche", "activo", "orden", "preview")
+    list_editable = ("precio", "cobro_por_noche", "activo", "orden")
     readonly_fields = ("preview",)
 
     def preview(self, obj):
