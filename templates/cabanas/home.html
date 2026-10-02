@@ -60,9 +60,16 @@
         <a class="btn btn-clay" href="#reserva">{{ t.reservar }} {% t_campo casa.nombre casa.nombre_en %}</a>
       </div>
     </div>
-    <div class="casa-gallery">
-      {% for foto in casa.fotos.all|slice:":3" %}
-        <div class="ph-photo" style="background-image:url('{{ foto.imagen.url }}');"><div class="ph-label">{{ foto.descripcion|default:"" }}</div></div>
+    <div class="casa-gallery" data-gallery data-casa="{% t_campo casa.nombre casa.nombre_en %}">
+      {% for foto in casa.fotos.all %}
+        {% if forloop.counter <= 3 %}
+        <div class="ph-photo has-zoom" role="button" tabindex="0" aria-label="Ver fotos" data-full="{{ foto.imagen.url }}" data-desc="{{ foto.descripcion }}" style="background-image:url('{{ foto.imagen.url }}');">
+          <div class="ph-label">{{ foto.descripcion|default:"" }}</div>
+          {% if forloop.counter == 3 and forloop.revcounter0 > 0 %}<div class="ph-more">+{{ forloop.revcounter0 }} fotos</div>{% endif %}
+        </div>
+        {% else %}
+        <span class="gal-extra" hidden data-full="{{ foto.imagen.url }}" data-desc="{{ foto.descripcion }}"></span>
+        {% endif %}
       {% empty %}
         <div class="ph-photo empty"><div class="ph-label">Sube fotos desde /admin/</div></div>
       {% endfor %}
@@ -271,8 +278,18 @@
           <div class="field full" style="margin-top:6px;">
             <label>{{ t.servicios_extra }}</label>
             <div class="servicios-checks">
-              {% for checkbox in reserva_form.servicios %}
-                <label class="check-item">{{ checkbox.tag }} {{ checkbox.choice_label }}</label>
+              {% for s in servicios %}
+                <label class="check-item">
+                  <input type="checkbox" name="servicios" value="{{ s.id }}" class="servicio-check" data-precio="{{ s.precio|default:0 }}" data-por-noche="{{ s.cobro_por_noche|yesno:'1,0' }}" data-id="{{ s.id }}">
+                  {% t_campo s.nombre s.nombre_en %}
+                  {% if s.cobro_por_noche %}<span class="servicio-nota">(por noche)</span>{% endif %}
+                </label>
+                {% if s.cobro_por_noche %}
+                  <div class="dias-servicio-wrap" id="dias-wrap-{{ s.id }}" style="display:none;">
+                    <label class="dias-servicio-label">Noches con {% t_campo s.nombre s.nombre_en %}</label>
+                    <input type="number" name="dias_{{ s.id }}" id="dias_{{ s.id }}" class="dias-servicio-input" min="1" value="1">
+                  </div>
+                {% endif %}
               {% endfor %}
             </div>
           </div>

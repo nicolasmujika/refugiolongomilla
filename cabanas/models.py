@@ -79,7 +79,7 @@ class Reserva(models.Model):
     email = models.EmailField("Email", blank=True, help_text="Para enviar la confirmación por correo.")
     token_resena = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
     resena_solicitada = models.BooleanField(default=False)
-    
+    servicios_dias = models.JSONField("Días por servicio", default=dict, blank=True)
     class Meta:
         ordering = ["-creado"]
 
@@ -98,10 +98,17 @@ class Reserva(models.Model):
         partes.append(f"Huéspedes: {self.huespedes}")
         servicios = list(self.servicios.all())
         if servicios:
-            nombres = ", ".join(s.nombre for s in servicios)
-            partes.append(f"Servicios extra: {nombres}")
+            lineas_servicios = []
+            for s in servicios:
+                if s.cobro_por_noche:
+                    dias = self.servicios_dias.get(str(s.id), 1)
+                    lineas_servicios.append(f"{s.nombre} ({dias} noche{'s' if dias != 1 else ''})")
+                else:
+                    lineas_servicios.append(s.nombre)
+            partes.append(f"Servicios extra: {', '.join(lineas_servicios)}")
         partes.append(f"Nombre: {self.nombre}")
         partes.append(f"Contacto: {self.codigo_pais} {self.contacto}")
+        partes.append(f"Total estimado: ${self.calcular_total():,.0f}".replace(",", "."))
         return "\n".join(partes)
 
     def mensaje_confirmacion_whatsapp(self):
@@ -122,6 +129,19 @@ class Reserva(models.Model):
         if digitos.startswith(codigo_limpio):
             return digitos
         return codigo_limpio + digitos
+
+    def calcular_total(self):
+        total = 0
+        if self.fecha_llegada and self.fecha_salida and self.casa and self.casa.precio_desde:
+            noches = (self.fecha_salida - self.fecha_llegada).days
+            total += noches * self.casa.precio_desde
+        for s in self.servicios.all():
+            if s.cobro_por_noche:
+                dias = self.servicios_dias.get(str(s.id), 1)
+                total += (s.precio or 0) * dias
+            else:
+                total += (s.precio or 0)
+        return total
 
 
 class SiteConfig(models.Model):
@@ -192,7 +212,7 @@ class Servicio(models.Model):
     orden = models.PositiveIntegerField("Orden", default=0)
     nombre_en = models.CharField("Nombre (inglés)", max_length=60, blank=True)
     descripcion_en = models.TextField("Descripción (inglés)", blank=True)
-    
+    cobro_por_noche = models.BooleanField("Se cobra por noche", default=False, help_text="Si está activo, el huésped elige cuántas noches lo quiere.")
 
     class Meta:
         verbose_name = "Servicio"
