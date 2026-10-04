@@ -12,7 +12,8 @@ from django.views.generic import TemplateView
 from django.views.generic.edit import FormView
 from django.core.mail import send_mail
 from .forms import ReservaForm
-from .models import AmenidadCasa, Atractivo, Casa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig
+from .ical_sync import sincronizar_si_corresponde
+from .models import AmenidadCasa, Atractivo, Casa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig, BloqueoFechas
 import json
 
 class HomeView(TemplateView):
@@ -208,13 +209,17 @@ class ReservaCreateView(FormView):
 
 
 def fechas_ocupadas(request):
+    sincronizar_si_corresponde()
     reservas = Reserva.objects.exclude(estado="cancelada").exclude(fecha_llegada__isnull=True).exclude(fecha_salida__isnull=True)
     rangos = [
         {"inicio": r.fecha_llegada.isoformat(), "fin": r.fecha_salida.isoformat()}
         for r in reservas
     ]
+    rangos += [
+        {"inicio": b.fecha_desde.isoformat(), "fin": b.fecha_hasta.isoformat()}
+        for b in BloqueoFechas.objects.filter(fecha_hasta__gte=date.today())
+    ]
     return JsonResponse({"ocupado": rangos})
-
 
 def cambiar_idioma(request, lang):
     if lang in ("es", "en"):

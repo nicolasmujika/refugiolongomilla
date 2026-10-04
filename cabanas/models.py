@@ -33,6 +33,10 @@ class Casa(models.Model):
     )
     reglas_texto_en = models.TextField("Reglas adicionales (inglés)", blank=True)
 
+    ical_url = models.URLField("Enlace iCal de Airbnb", max_length=500, blank=True,
+                               help_text="Airbnb → Calendario → Conectar calendarios → Exportar calendario")
+    ical_ultima_sync = models.DateTimeField(null=True, blank=True, editable=False)
+
     class Meta:
         ordering = ["orden", "id"]
 
@@ -350,3 +354,20 @@ class Resena(models.Model):
 
     def __str__(self):
         return f"{self.nombre_huesped} — {self.estrellas}★"
+
+class BloqueoFechas(models.Model):
+    ORIGEN_CHOICES = [("manual", "Manual"), ("airbnb", "Airbnb")]
+
+    casa = models.ForeignKey(Casa, related_name="bloqueos", on_delete=models.CASCADE)
+    fecha_desde = models.DateField("Desde (llegada)")
+    fecha_hasta = models.DateField("Hasta (salida)")
+    motivo = models.CharField("Motivo", max_length=100, blank=True)
+    origen = models.CharField("Origen", max_length=10, choices=ORIGEN_CHOICES, default="manual")
+
+    class Meta:
+        ordering = ["fecha_desde"]
+        verbose_name = "Bloqueo de fechas"
+        verbose_name_plural = "Bloqueos de fechas"
+
+    def __str__(self):
+        return f"{self.casa} {self.fecha_desde} → {self.fecha_hasta} ({self.get_origen_display()})"

@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.utils.html import format_html
 
-from .models import AmenidadCasa, Atractivo, Casa, FotoCasa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig, Atractivo
+from .models import AmenidadCasa, Atractivo, BloqueoFechas, Casa, FotoCasa, FotoZona, PuntoMapa, Reserva, Resena, Servicio, SiteConfig
 
 class FotoCasaInline(admin.TabularInline):
     model = FotoCasa
@@ -104,3 +104,8 @@ class ResenaAdmin(admin.ModelAdmin):
 class PuntoMapaAdmin(admin.ModelAdmin):
     list_display = ("nombre", "latitud", "longitud", "orden")
     list_editable = ("orden",)
+
+@admin.register(BloqueoFechas)
+class BloqueoFechasAdmin(admin.ModelAdmin):
+    list_display = ("casa", "fecha_desde", "fecha_hasta", "motivo", "origen")
+    list_filter = ("origen", "casa")
